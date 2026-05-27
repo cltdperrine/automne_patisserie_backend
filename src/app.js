@@ -15,6 +15,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(authMiddleware);
 app.use("/api", apiRouter);
+app.use("/uploads", express.static("uploads"));
 
 app.get("/health", (req, res) => {
   return res.status(200).send("Hello world!");
