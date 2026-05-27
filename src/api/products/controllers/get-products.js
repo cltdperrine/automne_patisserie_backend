@@ -1,7 +1,5 @@
 import databaseClient from "../../../services/database.js";
 
-// TODO: update code to handle category filter ( query param )
-
 export default async function getProducts(req, res) {
   try {
     const { categoryId } = req.query;
@@ -10,6 +8,7 @@ export default async function getProducts(req, res) {
       products = await databaseClient`
       SELECT
         p.*,
+        c.name AS category_name,
         (
           SELECT i.url
           FROM images i
@@ -18,12 +17,16 @@ export default async function getProducts(req, res) {
           LIMIT 1
         ) AS image_url
       FROM products p
-      WHERE category_id = ${categoryId}
+      JOIN categories c
+      ON c.id = p.category_id
+      WHERE p.category_id = ${categoryId}
       ORDER BY p.created_at ASC`;
     } else {
       products = await databaseClient`
       SELECT
         p.*,
+        c.name AS category_name,
+
         (
           SELECT i.url
           FROM images i
@@ -32,6 +35,8 @@ export default async function getProducts(req, res) {
           LIMIT 1
         ) AS image_url
       FROM products p
+      JOIN categories c
+      ON c.id = p.category_id
       ORDER BY p.created_at ASC`;
     }
 
