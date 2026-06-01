@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:3001
+@baseUrl = https://automnepatisseriebackend.vercel.app
 @apiUrl = {{baseUrl}}/api
 @json = application/json
 
