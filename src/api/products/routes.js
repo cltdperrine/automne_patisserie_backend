@@ -2,10 +2,18 @@ import { Router } from "express";
 import productsController from "./controllers/index.js";
 import upload from "../../middlewares/upload.js";
 import createProduct from "./controllers/post-product.js";
+import { roleMiddleware } from "../../middlewares/role.middleware.js";
+import authMiddleware from "../../middlewares/authMiddleware.js";
 
 const productsRouter = Router();
 
-productsRouter.post("/", upload.single("image"), productsController.create);
+productsRouter.post(
+  "/",
+  authMiddleware,
+  roleMiddleware("admin"),
+  upload.single("image"),
+  productsController.create,
+);
 productsRouter.get("/", productsController.getAll);
 productsRouter.get("/best-sellers", productsController.getBestSellers);
 productsRouter.get("/:id", productsController.get);
