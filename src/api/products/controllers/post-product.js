@@ -1,12 +1,23 @@
 import databaseClient from "../../../services/database.js";
+import { productSchema } from "../product.validation.js";
 
 export default async function createProduct(req, res) {
   const { name, price, description, allergens, categoryId } = req.body;
 
-  if (!name || price === undefined) {
-    return res.status(400).json({ message: "Name and price are required" });
+  const { error } = productSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+    });
   }
-  console.log(req.file);
+
+  if (!req.file) {
+    return res.status(400).json({
+      message: "Une image est obligatoire",
+    });
+  }
+
   try {
     const result = await databaseClient`
       INSERT INTO products (name, price, description, allergens, category_id) 

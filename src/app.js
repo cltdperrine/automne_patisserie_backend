@@ -4,6 +4,7 @@ import cors from "cors";
 import apiRouter from "./api/index.js";
 import cookieParser from "cookie-parser";
 import authMiddleware from "./middlewares/authMiddleware.js";
+import contactRoutes from "./api/contact/routes.js";
 dotenv.config();
 
 const CLIENT_URL = process.env.CLIENT_URL;
@@ -16,6 +17,7 @@ app.use(cookieParser());
 app.use(authMiddleware);
 app.use("/api", apiRouter);
 app.use("/uploads", express.static("uploads"));
+app.use("/api/contact", contactRoutes);
 
 app.get("/health", (req, res) => {
   return res.status(200).send("Hello world!");
