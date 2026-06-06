@@ -31,15 +31,13 @@ export default async function register(req, res) {
     // Hash the password before storing it in the database
     const hashed = await bcrypt.hash(password, 10);
 
-    const hashed = await bcrypt.hash(password, 10);
-
     // Create the new user
     const [user] = await databaseClient`        
         INSERT INTO users (first_name, last_name, email, password)
         VALUES (${first_name}, ${last_name}, ${email}, ${hashed})
         RETURNING id, first_name, last_name, email;`;
 
-    return res.status(201).json(result);
+    return res.status(201).json(user);
   } catch (error) {
     console.error(error);
 
