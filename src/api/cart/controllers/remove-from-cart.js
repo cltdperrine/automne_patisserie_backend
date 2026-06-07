@@ -5,7 +5,10 @@ function isValidUUID(value) {
 }
 
 export default async function removeFromCart(req, res) {
-  const userId = req.params.user_id;
+  const userId = req.user.id;
+  if (!userId) {
+    return res.status(403).json("You need to log in to perform this action");
+  }
   const productId = req.params.product_id;
 
   if (!isValidUUID(userId)) {

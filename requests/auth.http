@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5000
+@baseUrl = http://localhost:3001
 @apiUrl = {{baseUrl}}/api
 @json = application/json
 
@@ -16,6 +16,6 @@ POST {{apiUrl}}/auth/sign-in
 Content-Type: {{json}}
 
 {
- "email": "me@mail.com",
+ "email": "hello@mail.com",
  "password": "1234"
 }

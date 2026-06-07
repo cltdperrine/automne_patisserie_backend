@@ -8,11 +8,9 @@ export default async function getCategories(req, res) {
     return res.status(200).json(categories);
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({
-        message: "Error during categories retrieval",
-        error: error.message,
-      });
+    return res.status(500).json({
+      message: "Error during categories retrieval",
+      error: error.message,
+    });
   }
 }

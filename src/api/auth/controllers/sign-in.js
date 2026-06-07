@@ -1,41 +1,57 @@
 import databaseClient from "../../../services/database.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { loginSchema } from "../auth.validation.js";
 
 const SIGNATURE = process.env.JWT_SECRET;
 
 export default async function signIn(req, res) {
-  // get email and password sent by the user
+  // Validate incoming request data
+  const { error } = loginSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+    });
+  }
+
   const { email, password } = req.body;
 
-  console.log(req.body);
-
-  // get the user from the db using the email
+  // Retrieve user from database
   const [user] = await databaseClient`
   SELECT * FROM users WHERE email = ${email}`;
 
+  // If user does not exist
   if (!user) {
-    return res.status(401).json("Invalid credentials");
+    return res.status(401).json("Identifiant ou mot de passe incorrects");
   }
 
-  // compare the password with the hashed password
+  // Compare provided password with hashed password
   const isValid = await bcrypt.compare(password, user.password);
-  // if the passwords don't match, the request is rejected
-  if (isValid === false) {
-    return res.status(401).json("Invalid password");
+
+  if (!isValid) {
+    return res.status(401).json("Identifiant ou mot de passe incorrects");
   }
 
-  //build a payload without the password
+  // JWT payload
   const payload = {
     id: user.id,
     first_name: user.first_name,
     last_name: user.last_name,
     email: user.email,
+    role: user.role,
   };
 
-  // sign a token
+  // Generate authentication token
   const token = jwt.sign(payload, SIGNATURE);
 
-  //send back the user data with the token
+  // Store token in an HTTP-only cookie
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
   return res.status(200).json({ user: payload, token });
 }

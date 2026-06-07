@@ -1,4 +1,5 @@
 import databaseClient from "../../../services/database.js";
+import { productSchema } from "../product.validation.js";
 
 function isValidUUID(value) {
   return typeof value === "string" && value.length === 36;
@@ -6,7 +7,15 @@ function isValidUUID(value) {
 
 export default async function patchProduct(req, res) {
   const id = req.params.id;
-  const { name, price, description, allergens } = req.body;
+  const { name, price, description, allergens, categoryId } = req.body;
+
+  const { error } = productSchema.validate(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      message: error.details[0].message,
+    });
+  }
 
   if (!isValidUUID(id)) {
     return res.status(400).send("Invalid product id");
@@ -22,44 +31,11 @@ export default async function patchProduct(req, res) {
   }
 
   try {
-    let result;
-
-    if (
-      name !== undefined &&
-      price !== undefined &&
-      description !== undefined &&
-      allergens !== undefined
-    ) {
-      result = await databaseClient`
+    const result = await databaseClient`
         UPDATE products
-        SET name = ${name}, price = ${price}, description = ${description}, allergens = ${allergens}
+        SET name = ${name}, price = ${price}, description = ${description}, allergens = ${allergens}, categoryId = ${categoryId}
         WHERE id = ${id}
         RETURNING *`;
-    } else if (name !== undefined) {
-      result = await databaseClient`
-    UPDATE products
-    SET name = ${name}
-    WHERE id = ${id}
-    RETURNING *`;
-    } else if (price !== undefined) {
-      result = await databaseClient`
-    UPDATE products
-    SET price = ${price}
-    WHERE id = ${id}
-    RETURNING *`;
-    } else if (description !== undefined) {
-      result = await databaseClient`
-    UPDATE products
-    SET description = ${description}
-    WHERE id = ${id}
-    RETURNING *`;
-    } else {
-      result = await databaseClient`
-    UPDATE products
-    SET allergens = ${allergens}
-    WHERE id = ${id}
-    RETURNING *`;
-    }
 
     if (!result[0]) {
       return res.status(404).send("Product not found");

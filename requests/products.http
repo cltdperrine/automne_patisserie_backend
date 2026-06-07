@@ -1,4 +1,4 @@
-@baseUrl = http://localhost:5000
+@baseUrl = https://automnepatisseriebackend.vercel.app
 @apiUrl = {{baseUrl}}/api
 @json = application/json
 
@@ -22,7 +22,7 @@ Content-Type: {{json}}
 GET {{apiUrl}}/products
 
 ### Get product by id
-GET {{apiUrl}}/products/{{productId}}
+GET {{apiUrl}}/products/17e3c918-c4b4-4a0a-9167-ee061c4e3eba
 
 ###
 

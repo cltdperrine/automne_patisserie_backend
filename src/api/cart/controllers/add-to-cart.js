@@ -6,7 +6,10 @@ function isValidUUID(value) {
 }
 
 export default async function addToCart(req, res) {
-  const userId = req.params.user_id;
+  const userId = req.user.id;
+  if (!userId) {
+    return res.status(403).json("You need to log in to perform this action");
+  }
   const { product_id, quantity } = req.body;
 
   if (!isValidUUID(userId)) {

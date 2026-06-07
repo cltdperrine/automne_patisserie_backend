@@ -13,7 +13,22 @@ export default async function getOrder(req, res) {
 
   try {
     const result = await databaseClient`
-    SELECT * FROM orders WHERE id = ${id}`;
+      SELECT o.*,
+        COALESCE(
+          json_agg(
+            json_build_object(
+              'product_id', oi.product_id,
+              'quantity', oi.quantity,
+              'unit_price', oi.unit_price
+            )
+          ) FILTER (WHERE oi.product_id IS NOT NULL),
+          '[]'
+        ) AS items
+      FROM orders o
+      LEFT JOIN order_items oi ON oi.order_id = o.id
+      WHERE o.id = ${id}
+      GROUP BY o.id
+    `;
 
     if (result.length === 0) {
       return res.status(404).send("Order not found");
