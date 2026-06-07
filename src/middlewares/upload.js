@@ -6,9 +6,9 @@ import path from "path";
 const uploadDir = path.resolve("uploads");
 
 // Création du dossier uploads s’il n’existe pas
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// if (!fs.existsSync(uploadDir)) {
+//   fs.mkdirSync(uploadDir, { recursive: true });
+// }
 
 // Liste blanche des types MIME autorisés
 const allowedMimeTypes = [
