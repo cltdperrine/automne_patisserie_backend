@@ -1,22 +1,23 @@
 import databaseClient from "../../../services/database.js";
 
-function isValidUUID(value) {
-  return typeof value === "string" && value.length === 36;
-}
-
 function isPositiveInt(value) {
   return Number.isInteger(value) && value > 0;
 }
 
 export default async function createOrder(req, res) {
-  const { client_id, status, items } = req.body;
+  const {
+    first_name,
+    last_name,
+    phone,
+    pickup_location,
+    pickup_date,
+    notes,
+    status,
+    items,
+  } = req.body;
 
-  if (!client_id || !status) {
-    return res.status(400).send("client_id and status are required");
-  }
-
-  if (!isValidUUID(client_id)) {
-    return res.status(400).send("Invalid client id");
+  if (!first_name || !last_name || !phone || !pickup_location || !pickup_date) {
+    return res.status(400).send("Missing required fields");
   }
 
   if (!Array.isArray(items) || items.length === 0) {
@@ -24,25 +25,21 @@ export default async function createOrder(req, res) {
   }
 
   for (const item of items) {
-    if (
-      !item ||
-      !isValidUUID(item.product_id) ||
-      !isPositiveInt(item.quantity)
-    ) {
-      return res
-        .status(400)
-        .send(
-          "each item requires a valid product_id and a positive integer quantity",
-        );
+    if (!item || !isPositiveInt(item.quantity)) {
+      return res.status(400).send("Invalid item");
     }
   }
 
   try {
+    console.log("UUID validation OK");
     const productIds = [...new Set(items.map((i) => i.product_id))];
     const products = await databaseClient`
       SELECT id, price FROM products WHERE id = ANY(${productIds})
     `;
 
+    const allProducts = await databaseClient`
+  SELECT id, name FROM products
+`;
     if (products.length !== productIds.length) {
       return res.status(400).send("one or more product_id values do not exist");
     }
@@ -50,10 +47,26 @@ export default async function createOrder(req, res) {
     const priceById = new Map(products.map((p) => [p.id, p.price]));
 
     const [order] = await databaseClient`
-      INSERT INTO orders (client_id, status)
-      VALUES (${client_id}, ${status})
-      RETURNING *
-    `;
+  INSERT INTO orders (
+    first_name,
+    last_name,
+    phone,
+    pickup_location,
+    pickup_date,
+    notes,
+    status
+  )
+  VALUES (
+    ${first_name},
+    ${last_name},
+    ${phone},
+    ${pickup_location},
+    ${pickup_date},
+    ${notes},
+    ${status}
+  )
+  RETURNING *
+`;
 
     const itemInserts = items.map(
       (item) => databaseClient`

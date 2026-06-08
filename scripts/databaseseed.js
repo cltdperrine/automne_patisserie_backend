@@ -232,11 +232,8 @@ async function seed() {
     RETURNING id
   `;
 
-  await databaseClient`
-    DELETE FROM order_items
-    WHERE order_id IN (SELECT id FROM orders WHERE client_id = ${seedUser.id})
-  `;
-  await databaseClient`DELETE FROM orders WHERE client_id = ${seedUser.id}`;
+  await databaseClient`DELETE FROM order_items`;
+  await databaseClient`DELETE FROM orders`;
   await databaseClient`DELETE FROM images`;
   await databaseClient`DELETE FROM products`;
   await databaseClient`DELETE FROM categories`;
@@ -280,10 +277,26 @@ async function seed() {
 
   for (const def of orderDefs) {
     const [order] = await databaseClient`
-      INSERT INTO orders (client_id, status)
-      VALUES (${seedUser.id}, ${def.status})
-      RETURNING id
-    `;
+  INSERT INTO orders (
+    first_name,
+    last_name,
+    phone,
+    pickup_location,
+    pickup_date,
+    notes,
+    status
+  )
+  VALUES (
+    ${"Client"},
+    ${"Test"},
+    ${"0600000000"},
+    ${"quintaou"},
+    ${"2026-06-13"},
+    ${"Commande de démonstration"},
+    ${def.status}
+  )
+  RETURNING id
+`;
     orderCount += 1;
 
     for (const [productName, quantity] of def.items) {

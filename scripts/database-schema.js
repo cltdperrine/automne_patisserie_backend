@@ -56,13 +56,18 @@ export async function createDatabaseSchema(databaseClient) {
   `;
 
   await databaseClient`
-    CREATE TABLE IF NOT EXISTS orders (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-      client_id UUID REFERENCES users(id) ON DELETE CASCADE,
-      status status NOT NULL DEFAULT 'pending',
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-  `;
+  CREATE TABLE IF NOT EXISTS orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    pickup_location TEXT NOT NULL,
+    pickup_date DATE NOT NULL,
+    notes TEXT,
+    status status NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )
+`;
 
   await databaseClient`
     CREATE TABLE IF NOT EXISTS order_items (
