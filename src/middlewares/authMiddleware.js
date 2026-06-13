@@ -9,13 +9,11 @@ export default function authMiddleware(req, res, next) {
     return next();
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-  if (decoded) {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
-  } else {
-    return req.status(403).json("Invalid token");
+    next();
+  } catch {
+    return res.status(403).json("Invalid token");
   }
-
-  next();
 }

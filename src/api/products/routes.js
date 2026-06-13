@@ -17,7 +17,7 @@ productsRouter.post(
 productsRouter.get("/", productsController.getAll);
 productsRouter.get("/best-sellers", productsController.getBestSellers);
 productsRouter.get("/:id", productsController.get);
-productsRouter.patch("/:id", productsController.patch);
-productsRouter.delete("/:id", productsController.delete);
+productsRouter.patch("/:id", authMiddleware, roleMiddleware("admin"), productsController.patch);
+productsRouter.delete("/:id", authMiddleware, roleMiddleware("admin"), productsController.delete);
 
 export default productsRouter;

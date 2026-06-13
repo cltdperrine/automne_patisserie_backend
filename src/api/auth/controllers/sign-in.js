@@ -43,7 +43,7 @@ export default async function signIn(req, res) {
   };
 
   // Generate authentication token
-  const token = jwt.sign(payload, SIGNATURE);
+  const token = jwt.sign(payload, SIGNATURE, { expiresIn: "7d" });
 
   // Store token in an HTTP-only cookie
   const isProduction = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
