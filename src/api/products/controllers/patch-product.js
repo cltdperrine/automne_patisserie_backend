@@ -1,5 +1,5 @@
 import databaseClient from "../../../services/database.js";
-import { productSchema } from "../product.validation.js";
+import { updateProductSchema } from "../product.validation.js";
 
 function isValidUUID(value) {
   return typeof value === "string" && value.length === 36;
@@ -9,7 +9,7 @@ export default async function patchProduct(req, res) {
   const id = req.params.id;
   const { name, price, description, allergens, categoryId } = req.body;
 
-  const { error } = productSchema.validate(req.body);
+  const { error } = updateProductSchema.validate(req.body);
 
   if (error) {
     return res.status(400).json({
@@ -33,7 +33,7 @@ export default async function patchProduct(req, res) {
   try {
     const result = await databaseClient`
         UPDATE products
-        SET name = ${name}, price = ${price}, description = ${description}, allergens = ${allergens}, categoryId = ${categoryId}
+        SET name = ${name}, price = ${price}, description = ${description}, allergens = ${allergens}, category_id = ${categoryId}
         WHERE id = ${id}
         RETURNING *`;
 
