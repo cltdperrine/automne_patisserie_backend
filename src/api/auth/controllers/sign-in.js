@@ -46,10 +46,11 @@ export default async function signIn(req, res) {
   const token = jwt.sign(payload, SIGNATURE);
 
   // Store token in an HTTP-only cookie
+  const isProduction = process.env.NODE_ENV === "production" || !!process.env.VERCEL;
   res.cookie("token", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
