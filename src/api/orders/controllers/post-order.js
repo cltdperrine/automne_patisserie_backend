@@ -31,7 +31,6 @@ export default async function createOrder(req, res) {
   }
 
   try {
-    console.log("UUID validation OK");
     const productIds = [...new Set(items.map((i) => i.product_id))];
     const products = await databaseClient`
       SELECT id, price FROM products WHERE id = ANY(${productIds})
