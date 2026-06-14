@@ -1,5 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -195,6 +196,8 @@ const categories = [
 ];
 
 const SEED_USER_EMAIL = "seed@automne.test";
+const ADMIN_EMAIL = "admin@automne.fr";
+const ADMIN_PASSWORD = "Admin1234!";
 
 const orderDefs = [
   {
@@ -225,6 +228,14 @@ const orderDefs = [
 ];
 
 async function seed() {
+  // Compte admin pour la démonstration
+  const adminHashed = await bcrypt.hash(ADMIN_PASSWORD, 10);
+  await databaseClient`
+    INSERT INTO users (first_name, last_name, email, password, role)
+    VALUES ('Admin', 'Automne', ${ADMIN_EMAIL}, ${adminHashed}, 'admin')
+    ON CONFLICT (email) DO UPDATE SET role = 'admin', password = ${adminHashed}
+  `;
+
   const [seedUser] = await databaseClient`
     INSERT INTO users (first_name, last_name, email, password)
     VALUES ('Seed', 'Customer', ${SEED_USER_EMAIL}, 'seeded-placeholder')
@@ -319,6 +330,8 @@ async function seed() {
     imageCount,
     orderCount,
     orderItemCount,
+    adminEmail: ADMIN_EMAIL,
+    adminPassword: ADMIN_PASSWORD,
   };
 }
 
@@ -330,10 +343,13 @@ seed()
       imageCount,
       orderCount,
       orderItemCount,
+      adminEmail,
+      adminPassword,
     }) => {
       console.log(
         `Database seeded: ${categoryCount} categories, ${productCount} products, ${imageCount} images, ${orderCount} orders, ${orderItemCount} order items`,
       );
+      console.log(`Admin account: ${adminEmail} / ${adminPassword}`);
     },
   )
   .catch((error) => {
